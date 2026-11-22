@@ -1,6 +1,7 @@
 package com.akibkhan.melodystream
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -425,17 +427,17 @@ private fun EmptyState(title: String, subtitle: String, accent: Color) {
     }
 }
 
-private fun saveFavorites(context: Context, tracks: List<Track>) {
+private fun saveFavorites(prefs: SharedPreferences, tracks: List<Track>) {
     val array = JSONArray()
     tracks.forEach { track ->
         array.put(JSONObject().put("id", track.id).put("title", track.title).put("artist", track.artist).put("artwork", track.artwork).put("previewUrl", track.previewUrl))
     }
-    context.getSharedPreferences(prefsName, Context.MODE_PRIVATE).edit().putString("favorites", array.toString()).apply()
+    prefs.edit().putString("favorites", array.toString()).apply()
 }
 
-private fun loadFavorites(context: Context): List<Track> {
+private fun loadFavorites(prefs: SharedPreferences): List<Track> {
     return try {
-        val raw = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE).getString("favorites", "[]") ?: "[]"
+        val raw = prefs.getString("favorites", "[]") ?: "[]"
         val array = JSONArray(raw)
         buildList {
             for (i in 0 until array.length()) {
